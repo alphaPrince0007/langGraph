@@ -1,10 +1,10 @@
-from typing import TypedDict
+from typing import TypedDict, List
 from langgraph.graph import StateGraph
 
 class AgentState(TypedDict):
     name: str
     age: str
-    Pnum: str
+    values: List[str]
     final: str
 
 def first_node(state: AgentState) -> AgentState:
@@ -21,8 +21,9 @@ def second_node(state: AgentState) -> AgentState:
 
 def third_node(state: AgentState) -> AgentState:
     """This is the third node of our sequence"""
-
-    state["final"] += f"You can be reached at {state['Pnum']}"
+    values = state.get("values", [])
+    skills_str = ", ".join(values)
+    state["final"] += f"and your skills are: {skills_str}"
     return state
 
 graph = StateGraph(AgentState)
@@ -43,5 +44,9 @@ app = graph.compile()
 #     f.write(graph_png)
 
 
-result = app.invoke({'name':'Prince', 'age': '24', 'Pnum': '9718123829' })
+result = app.invoke({
+    'name':'Prince',
+    'age': '24',
+    'values': ['JavaScript', 'Python', 'Java', 'C++']
+})
 print(result['final'])
